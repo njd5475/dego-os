@@ -9,6 +9,7 @@
 # See: http://preshing.com/20141119/how-to-build-a-gcc-cross-compiler
 #-------------------------------------------------------------------------------------------
  
+if [ -ne compiler_build.txt ]; then
 INSTALL_PATH=compiler
 TARGET=i686-elf
 USE_NEWLIB=0
@@ -127,3 +128,5 @@ cd ..
 trap - EXIT
 echo 'Success!'
 echo 'Success!' > compiler_built.txt
+
+fi
