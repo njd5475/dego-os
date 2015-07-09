@@ -108,9 +108,14 @@ public:
 	KernelBuilder *_do() { return this; }
 	KernelBuilder *initializeTerminal() { 
 		Terminal t;
-		//t.drawRect(2,2,8,4);
-		t.putChar('c', 0);
 		return this;
+	}
+	KernelBuilder *putWord(char *c, uint16_t index) {
+		Terminal t;
+		size_t len = strlen(c);
+		for(uint16_t i = 0; i < len; ++i) {
+			t.putChar(c[i], index+i);
+		}
 	}
         KernelBuilder *putChar(char c, uint16_t index) {
 		Terminal t;
@@ -171,7 +176,7 @@ void kernel_main()
 	KernelBuilder b;
 
 	// when kernel starts do actions
-	b.when()->kernelStarts()->_do()->initializeTerminal();
+	b.when()->kernelStarts()->_do()->initializeTerminal()->putWord("Hello World! - Dego", 0);
 
 	/* Since there is no support for newlines in terminal_putchar yet, \n will
 	   produce some VGA specific character instead. This is normal. */
