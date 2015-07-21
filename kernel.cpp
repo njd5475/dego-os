@@ -54,7 +54,16 @@ size_t strlen(const char* str)
 		ret++;
 	return ret;
 }
-uint16_t digitLength(size_t n)
+uint16_t digitLength(uint16_t n, uint16_t base)  
+{
+	uint16_t i = 0;
+	while(n > 0) {
+		n /= base;
+		++i;
+	}
+	return i;
+}
+uint16_t digitLength10(size_t n)
 {
 	if (n < 100000) {
 		// 5 or less
@@ -144,15 +153,23 @@ public:
 			t.putChar(c[i], index+i);
 		}
 	}
-        KernelBuilder *putNumber(uint16_t num, uint16_t index) {
-		uint16_t i = index + digitLength(num);
+	KernelBuilder *putNumber(uint16_t num, uint16_t index) {
+		this->putNumber(num,index,10);
+		return this;
+	}
+        KernelBuilder *putNumber(uint16_t num, uint16_t index, uint8_t base) {
+		uint16_t i = index + ((base == 10) ? digitLength10(num) : digitLength(num,base));
 		while(num > 0) {
-			putChar('0' + (num % 10), i);
-			num /= 10;
+			putChar(((num % base) > 10) ? ('A' + ((num % base)-10)) : ('0' + (num % base)), i);
+			num /= base;
 			--i;
 		}
 		return this;
         }
+	KernelBuilder *drawRect(uint8_t row, uint8_t col, uint8_t width, uint8_t height) {
+		t.drawRect(row, col, width, height);
+		return this;
+	}
         KernelBuilder *putChar(char c, uint16_t index) {
 		t.putChar(c, index);
 		return this;
@@ -212,42 +229,9 @@ void kernel_main()
 	KernelBuilder b;
 
 	// when kernel starts do actions
-	b.when()->kernelStarts()->_do()->putWord("Hello World! - Dego", 0);
+	b.putWord("Hello World! - Dego", 0);
 
-	uint16_t i = 0;
-	while(true) {
-		b.when()->kernelStarts()->_do()->putNumber(i, 81);
-		++i;
-	}
-
-	/* Since there is no support for newlines in terminal_putchar yet, \n will
-	   produce some VGA specific character instead. This is normal. */
-
-/* need to stop ints before accessing the CMOS chip */
-  stopints();
-
-/* write to port 0x70 with the CMOS register we want to read */
-/* 0x30 is the CMOS reg that hold the low byte of the mem count */
-  outportb(0x70,0x30);
-
-
-/* read CMOS values from port 0x71 */
-  lowmem = inportb(0x71);
-
-
-/* write to port 0x70 with the CMOS register we want to read */
-/* 0x31 is the CMOS reg that hold the high byte of the mem count */
-  outportb(0x70,0x31);
-
-
-/* read CMOS values from port 0x71 */
-  highmem = inportb(0x71);
-
-
-/* fix the low and high bytes into one value */
-  mem = highmem;
-  mem = mem<<8;
-  mem += lowmem;
-
-  //b.putInt(mem);
+	b.drawRect(25-5-1, 80-30-1, 30, 5);
+	
+	b.putNumber(inportb(0x64), 81, 2);
 }
