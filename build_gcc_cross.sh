@@ -9,7 +9,6 @@
 # See: http://preshing.com/20141119/how-to-build-a-gcc-cross-compiler
 #-------------------------------------------------------------------------------------------
  
-if [ -ne compiler_build.txt ]; then
 INSTALL_PATH=compiler
 TARGET=i686-elf
 USE_NEWLIB=0
@@ -29,6 +28,8 @@ export PATH=$INSTALL_PATH/bin:$PATH
  
 mkdir -p $INSTALL_PATH
 cd $INSTALL_PATH
+CHECK_FILE=compiler_build.txt
+if [ ! -f $CHECK_FILE ]; then
 INSTALL_PATH=$(cd $INSTALL_PATH; pwd)
 
 # Download packages
