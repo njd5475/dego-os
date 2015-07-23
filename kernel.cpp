@@ -6,13 +6,16 @@
  
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
-#error "You are not using a cross-compiler, you will most certainly run into trouble"
+#error "Use a cross-compiler, please "
 #endif
  
-/* This tutorial will only work for the 32-bit ix86 targets. */
+/* This will only work for the 32-bit ix86 targets. */
 #if !defined(__i386__)
-#error "This tutorial needs to be compiled with a ix86-elf compiler"
+#error "This needs to be compiled with a ix86-elf compiler"
 #endif
+
+#include "action.h"
+#include "terminal.h"
  
 /* Hardware text mode color constants. */
 enum vga_color
@@ -91,49 +94,13 @@ uint16_t digitLength10(size_t n)
 	}
 }
 
- 
-class Terminal
-{
-public:
-	Terminal() : buffer((uint16_t*) 0xB8000), columns(80), total(80*25), color(0) {
-		for(size_t i = 0; i < total; ++i) {
-			buffer[i] = 0x0F00;
-		}
-	}
+class Condition {
 
-	void drawRect(uint8_t row, uint8_t col, uint8_t width, uint8_t height) {
-		#define TOP_LEFT  218
-		#define BOT_RIGHT 217
-		#define BOT_LEFT  192
-		#define TOP_RIGHT 191
-		#define TOP_BOT	196	
-		#define LEFT_RIGHT 179	
-		putChar(TOP_LEFT, row * columns + col);	
-		putChar(BOT_LEFT, (row+height) * columns + col);
-		putChar(BOT_RIGHT, (row+height) * columns + (col+width));	
-		putChar(TOP_RIGHT, row * columns + (col+width));	
+};
 
-		for(uint8_t i = row+1; i < (row+height); ++i) {
-			putChar(LEFT_RIGHT, i * columns + col);
-			putChar(LEFT_RIGHT, i * columns + (col+width));
-		}
-		for(uint8_t i = col+1; i < (col+width); ++i) {
-			putChar(TOP_BOT, row * columns + i);
-			putChar(TOP_BOT, (row+height) * columns + i);
-		}
-	}
-
-	void putChar(uint16_t c, size_t index) {
-		buffer[index] = buffer[index] & 0xFF00; //clear bottom 		
-		buffer[index] = buffer[index] | c;
-	}
-
-
-private:
-	uint16_t* buffer;
-	uint8_t columns;
-	size_t total;
-	uint8_t color;
+struct Event {
+	Condition preCondition;
+	Action action;
 };
 
 class KernelBuilder
@@ -147,11 +114,12 @@ public:
 	KernelBuilder *initializeTerminal() { 
 		return this;
 	}
-	KernelBuilder *putWord(char *c, uint16_t index) {
+	KernelBuilder *putWord(const char *c, uint16_t index) {
 		size_t len = strlen(c);
 		for(uint16_t i = 0; i < len; ++i) {
 			t.putChar(c[i], index+i);
 		}
+		return this;
 	}
 	KernelBuilder *putNumber(uint16_t num, uint16_t index) {
 		this->putNumber(num,index,10);
