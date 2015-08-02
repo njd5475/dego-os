@@ -33,3 +33,7 @@
 compiler/
 isodir/
 /bin/
+.settings
+.classpath
+.project
+.cproject
