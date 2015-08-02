@@ -8,6 +8,8 @@ public:
 	Action() {};
 	~Action() {};
 
+private:
+	void _do();
 };
 
 #endif

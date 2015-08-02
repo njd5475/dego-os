@@ -3,12 +3,13 @@
 #endif
 #include <stddef.h>
 #include <stdint.h>
- 
+#include "new.h"
+
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
 #error "Use a cross-compiler, please "
 #endif
- 
+
 /* This will only work for the 32-bit ix86 targets. */
 #if !defined(__i386__)
 #error "This needs to be compiled with a ix86-elf compiler"
@@ -16,10 +17,9 @@
 
 #include "action.h"
 #include "terminal.h"
- 
+
 /* Hardware text mode color constants. */
-enum vga_color
-{
+enum vga_color {
 	COLOR_BLACK = 0,
 	COLOR_BLUE = 1,
 	COLOR_GREEN = 2,
@@ -37,37 +37,32 @@ enum vga_color
 	COLOR_LIGHT_BROWN = 14,
 	COLOR_WHITE = 15,
 };
- 
-uint8_t make_color(enum vga_color fg, enum vga_color bg)
-{
+
+uint8_t make_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
 }
- 
-uint16_t make_vgaentry(char c, uint8_t color)
-{
+
+uint16_t make_vgaentry(char c, uint8_t color) {
 	uint16_t c16 = c;
 	uint16_t color16 = color;
 	return c16 | color16 << 8;
 }
- 
-size_t strlen(const char* str)
-{
+
+size_t strlen(const char* str) {
 	size_t ret = 0;
-	while ( str[ret] != 0 )
+	while (str[ret] != 0)
 		ret++;
 	return ret;
 }
-uint16_t digitLength(uint16_t n, uint16_t base)  
-{
+uint16_t digitLength(uint16_t n, uint16_t base) {
 	uint16_t i = 0;
-	while(n > 0) {
+	while (n > 0) {
 		n /= base;
 		++i;
 	}
 	return i;
 }
-uint16_t digitLength10(size_t n)
-{
+uint16_t digitLength10(size_t n) {
 	if (n < 100000) {
 		// 5 or less
 		if (n < 100) {
@@ -79,7 +74,7 @@ uint16_t digitLength10(size_t n)
 				return 3;
 			else {
 				// 4 or 5
-				return (n < 10000) ?  4 : 5;
+				return (n < 10000) ? 4 : 5;
 			}
 		}
 	} else {
@@ -87,7 +82,7 @@ uint16_t digitLength10(size_t n)
 		if (n < 10000000) {
 			// 6 or 7
 			return (n < 1000000) ? 6 : 7;
-		 } else {
+		} else {
 			// 8 to 10
 			return (n < 100000000) ? 8 : ((n < 1000000000) ? 9 : 10);
 		}
@@ -103,56 +98,67 @@ struct Event {
 	Action action;
 };
 
-class KernelBuilder
-{
+class KernelBuilder {
 public:
-	KernelBuilder() {}
+	KernelBuilder() {
+	}
 
-	KernelBuilder *when() { return this; }
-	KernelBuilder *kernelStarts() { return this; }
-	KernelBuilder *_do() { return this; }
-	KernelBuilder *initializeTerminal() { 
+	KernelBuilder *when() {
+		return this;
+	}
+	KernelBuilder *kernelStarts() {
+		return this;
+	}
+	KernelBuilder *_do() {
+		return this;
+	}
+	KernelBuilder *initializeTerminal() {
 		return this;
 	}
 	KernelBuilder *putWord(const char *c, uint16_t index) {
 		size_t len = strlen(c);
-		for(uint16_t i = 0; i < len; ++i) {
-			t.putChar(c[i], index+i);
+		for (uint16_t i = 0; i < len; ++i) {
+			t.putChar(c[i], index + i);
 		}
 		return this;
 	}
 	KernelBuilder *putNumber(uint16_t num, uint16_t index) {
-		this->putNumber(num,index,10);
+		this->putNumber(num, index, 10);
 		return this;
 	}
-        KernelBuilder *putNumber(uint16_t num, uint16_t index, uint8_t base) {
-		uint16_t i = index + ((base == 10) ? digitLength10(num) : digitLength(num,base));
-		while(num > 0) {
-			putChar(((num % base) > 10) ? ('A' + ((num % base)-10)) : ('0' + (num % base)), i);
+	KernelBuilder *putNumber(uint16_t num, uint16_t index, uint8_t base) {
+		uint16_t i = index
+				+ ((base == 10) ? digitLength10(num) : digitLength(num, base));
+		while (num > 0) {
+			putChar(
+					((num % base) > 10) ?
+							('A' + ((num % base) - 10)) : ('0' + (num % base)),
+					i);
 			num /= base;
 			--i;
 		}
 		return this;
-        }
-	KernelBuilder *drawRect(uint8_t row, uint8_t col, uint8_t width, uint8_t height) {
+	}
+	KernelBuilder *drawRect(uint8_t row, uint8_t col, uint8_t width,
+			uint8_t height) {
 		t.drawRect(row, col, width, height);
 		return this;
 	}
-        KernelBuilder *putChar(char c, uint16_t index) {
+	KernelBuilder *putChar(char c, uint16_t index) {
 		t.putChar(c, index);
 		return this;
 	}
 	KernelBuilder *putInt(uint16_t num) {
 		uint16_t i = 0;
 		uint16_t cpynum = num;
-		while(cpynum > 0) {
+		while (cpynum > 0) {
 			++i;
 			cpynum /= 10;
 		}
-		while(num > 0) {
+		while (num > 0) {
 			uint16_t c = num % 10;
-			char cc = (char)c;
-			t.putChar(cc + ((char)'0'), --i);
+			char cc = (char) c;
+			t.putChar(cc + ((char) '0'), --i);
 			num /= 10;
 		}
 		return this;
@@ -162,28 +168,22 @@ private:
 };
 
 /* Input a byte from a port */
-
-inline unsigned char inportb(unsigned int port)
-{
-   unsigned char ret;
-   asm volatile ("inb %%dx,%%al":"=a" (ret):"d" (port));
-   return ret;
+inline unsigned char inportb(unsigned int port) {
+	unsigned char ret;
+	asm volatile ("inb %%dx,%%al":"=a" (ret):"d" (port));
+	return ret;
 }
-
 
 /* Output a byte to a port */
 /* July 6, 2001 added space between :: to make code compatible with gpp */
 
-inline void outportb(unsigned int port,unsigned char value)
-{
-   asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
+inline void outportb(unsigned int port, unsigned char value) {
+	asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
 }
 
-
 /* Stop Interrupts */
-inline void stopints()
-{
-  asm ("cli");
+inline void stopints() {
+	asm ("cli");
 }
 
 unsigned char highmem, lowmem;
@@ -192,14 +192,34 @@ uint16_t mem;
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
-void kernel_main()
-{
+void kernel_main() {
 	KernelBuilder b;
 
 	// when kernel starts do actions
 	b.putWord("Hello World! - Dego", 0);
 
-	b.drawRect(25-5-1, 80-30-1, 30, 5);
-	
-	b.putNumber(inportb(0x64), 81, 2);
+	b.drawRect(25 - 5 - 1, 80 - 30 - 1, 30, 5);
+
+	Event *type = new Event[30];
+
+	//b.putNumber(&endkernel, 80*6, 16); //new to upgrade put number to use take more bits
+	b.putNumber(lastAllocation, 80 * 5, 10);
+	char h[80];
+	h[0] = 'H';
+	unsigned int i = 0;
+	while (true) {
+		unsigned char k = inportb(0x64);
+		b.putNumber(k, 81, 16);
+		if (k == 0x1D) {
+			unsigned char p = inportb(0x60);
+			switch (p) {
+			case 0x9E:
+				h[++i] = 'A';
+			default:
+				h[++i] = ' ';
+			}
+			h[i + 1] = '\0';
+		}
+		b.putWord(h, 50);
+	}
 }
