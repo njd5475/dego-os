@@ -38,11 +38,11 @@ enum vga_color {
 	COLOR_WHITE = 15,
 };
 
-uint8_t make_color(enum vga_color fg, enum vga_color bg) {
+unsigned char make_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
 }
 
-uint16_t make_vgaentry(char c, uint8_t color) {
+uint16_t make_vgaentry(char c, unsigned char color) {
 	uint16_t c16 = c;
 	uint16_t color16 = color;
 	return c16 | color16 << 8;
@@ -54,15 +54,15 @@ size_t strlen(const char* str) {
 		ret++;
 	return ret;
 }
-uint16_t digitLength(uint16_t n, uint16_t base) {
-	uint16_t i = 0;
+uint32_t digitLength(uint32_t n, uint16_t base) {
+	uint32_t i = 0;
 	while (n > 0) {
 		n /= base;
 		++i;
 	}
 	return i;
 }
-uint16_t digitLength10(size_t n) {
+uint32_t digitLength10(size_t n) {
 	if (n < 100000) {
 		// 5 or less
 		if (n < 100) {
@@ -91,6 +91,10 @@ uint16_t digitLength10(size_t n) {
 
 class Condition {
 
+public:
+	Condition() {}
+	~Condition() {}
+	bool check() {return false;}
 };
 
 struct Event {
@@ -115,19 +119,19 @@ public:
 	KernelBuilder *initializeTerminal() {
 		return this;
 	}
-	KernelBuilder *putWord(const char *c, uint16_t index) {
-		size_t len = strlen(c);
-		for (uint16_t i = 0; i < len; ++i) {
+	KernelBuilder *putWord(const char *c, unsigned short index) {
+		long unsigned int len = strlen(c);
+		for (unsigned short i = 0; i < len; ++i) {
 			t.putChar(c[i], index + i);
 		}
 		return this;
 	}
-	KernelBuilder *putNumber(uint16_t num, uint16_t index) {
+	KernelBuilder *putNumber(unsigned int num, unsigned int index) {
 		this->putNumber(num, index, 10);
 		return this;
 	}
-	KernelBuilder *putNumber(uint16_t num, uint16_t index, uint8_t base) {
-		uint16_t i = index
+	KernelBuilder *putNumber(unsigned int num, unsigned int index, unsigned char base) {
+		unsigned int i = index
 				+ ((base == 10) ? digitLength10(num) : digitLength(num, base));
 		while (num > 0) {
 			putChar(
@@ -139,24 +143,24 @@ public:
 		}
 		return this;
 	}
-	KernelBuilder *drawRect(uint8_t row, uint8_t col, uint8_t width,
-			uint8_t height) {
+	KernelBuilder *drawRect(unsigned char row, unsigned char col, unsigned char width,
+			unsigned char height) {
 		t.drawRect(row, col, width, height);
 		return this;
 	}
-	KernelBuilder *putChar(char c, uint16_t index) {
+	KernelBuilder *putChar(char c, unsigned short index) {
 		t.putChar(c, index);
 		return this;
 	}
-	KernelBuilder *putInt(uint16_t num) {
-		uint16_t i = 0;
-		uint16_t cpynum = num;
+	KernelBuilder *putInt(unsigned short num) {
+		unsigned short i = 0;
+		unsigned short cpynum = num;
 		while (cpynum > 0) {
 			++i;
 			cpynum /= 10;
 		}
 		while (num > 0) {
-			uint16_t c = num % 10;
+			unsigned short c = num % 10;
 			char cc = (char) c;
 			t.putChar(cc + ((char) '0'), --i);
 			num /= 10;
@@ -201,25 +205,46 @@ void kernel_main() {
 	b.drawRect(25 - 5 - 1, 80 - 30 - 1, 30, 5);
 
 	Event *type = new Event[30];
-
-	//b.putNumber(&endkernel, 80*6, 16); //new to upgrade put number to use take more bits
-	b.putNumber(lastAllocation, 80 * 5, 10);
-	char h[80];
-	h[0] = 'H';
-	unsigned int i = 0;
-	while (true) {
-		unsigned char k = inportb(0x64);
-		b.putNumber(k, 81, 16);
-		if (k == 0x1D) {
-			unsigned char p = inportb(0x60);
-			switch (p) {
-			case 0x9E:
-				h[++i] = 'A';
-			default:
-				h[++i] = ' ';
-			}
-			h[i + 1] = '\0';
-		}
-		b.putWord(h, 50);
+	for(int i = 0; i < 30; ++i) {
+		type[i].action._do();
+		type[i].preCondition.check();
 	}
+
+	b.putNumber((unsigned int)&endkernel, 80*6, 16);
+	b.putNumber(lastAllocation, 80 * 5, 10);
+	b.putNumber(sizeof(size_t), 80 * 7, 10);
+//	char h[80];
+//	h[0] = 'H';
+//	unsigned int i = 0;
+//	while (true) {
+//		unsigned char k = inportb(0x64);
+//		b.putNumber(k, 81, 16);
+//		if (k == 0x1D) {
+//			unsigned char p = inportb(0x60);
+//			switch (p) {
+//			case 0x9E:
+//				h[++i] = 'A';
+//			default:
+//				h[++i] = ' ';
+//			}
+//			h[i + 1] = '\0';
+//		}
+//		b.putWord(h, 50);
+//	}
+
+	void *ptr = &endkernel;
+
+	//searching memory
+	for(unsigned int i = 0; i < 0xFFFF; ++i) {
+		ptr += 1;
+		*((unsigned int*)ptr) = 0;
+		b.putNumber(*((unsigned int*)ptr), 80*8, 16);
+		b.putNumber((unsigned int)ptr, 80*9, 16);
+	}
+
+	b.putNumber((unsigned int)(&endkernel-(unsigned int)ptr), 80*10, 10);
+}
+
+unsigned int calcIndex(unsigned int row, unsigned int col, unsigned int totalCol) {
+	return row * totalCol + col;
 }
