@@ -2,7 +2,6 @@
  * new
  *
  *  Created on: Aug 1, 2015
- *      Author: pbywebapp
  */
 
 #ifndef NEW_H_

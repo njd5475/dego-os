@@ -2,7 +2,6 @@
  * malloc.h
  *
  *  Created on: Aug 1, 2015
- *      Author: pbywebapp
  */
 
 #ifndef MALLOC_H_

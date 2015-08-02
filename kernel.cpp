@@ -171,28 +171,6 @@ private:
 	Terminal t;
 };
 
-/* Input a byte from a port */
-inline unsigned char inportb(unsigned int port) {
-	unsigned char ret;
-	asm volatile ("inb %%dx,%%al":"=a" (ret):"d" (port));
-	return ret;
-}
-
-/* Output a byte to a port */
-/* July 6, 2001 added space between :: to make code compatible with gpp */
-
-inline void outportb(unsigned int port, unsigned char value) {
-	asm volatile ("outb %%al,%%dx": :"d" (port), "a" (value));
-}
-
-/* Stop Interrupts */
-inline void stopints() {
-	asm ("cli");
-}
-
-unsigned char highmem, lowmem;
-uint16_t mem;
-
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
