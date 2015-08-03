@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "new.h"
+#include "function.h"
 
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
