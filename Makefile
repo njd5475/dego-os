@@ -21,11 +21,13 @@ play: $(TARGET).iso
 	qemu-system-i386 -cdrom $(TARGET).iso
 
 clean_compiler: clean
-	rm -rf compiler/
+	rm -rf compiler/gcc*
+	rm -rf compiler/binutils*
+	rm -rf compiler/bin
 
 $(INSTALL_PATH)/bin/bin/$(AS):
 	/bin/bash -c "cd $(INSTALL_PATH) && make bin/bin/$(AS)"
-$(INSTALL_PATH)/bin/bin/$(GCC): $(AS)
+$(INSTALL_PATH)/bin/bin/$(GCC): $(INSTALL_PATH)/bin/bin/$(AS)
 	/bin/bash -c "cd $(INSTALL_PATH) && make bin/bin/$(GCC)"
 
 compiler_built: $(INSTALL_PATH)/bin/bin/$(AS) $(INSTALL_PATH)/bin/bin/$(GCC)
