@@ -1,6 +1,7 @@
 TARGET=i686-elf
 PREFIX = $(shell pwd)/bin
 WGET=/usr/bin/wget
+GCC_OPTS= --disable-nls --enable-languages=c,c++ --without-headers
 
 binutils-2.25.tar.gz:
 	$(WGET) http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz	
@@ -14,9 +15,9 @@ gcc-5.2.0.tar.bz2:
 	$(WGET) ftp://ftp.gnu.org/gnu/gcc/gcc-5.2.0/gcc-5.2.0.tar.bz2
 gcc-5.2.0: gcc-5.2.0.tar.bz2
 	bash -c "tar -jxf gcc-5.2.0.tar.bz2"
-bin/bin/i686-elf-g++: gcc-5.2.0
+bin/bin/i686-elf-gcc: gcc-5.2.0
 	/bin/bash -c "cd gcc-5.2.0 && ./contrib/download_prerequisites"
-	/bin/bash -c "cd gcc-5.2.0 && ./configure --prefix=$(PREFIX) --target=$(TARGET) && make -j8 all-gcc && make -j8 install-gcc"
+	/bin/bash -c "cd gcc-5.2.0 && ./configure --prefix=$(PREFIX) --target=$(TARGET) $(GCC_OPTS) && make -j8 all-gcc && make -j8 install-gcc"
 
-all: bin/bin/i686-elf-as bin/bin/i686-elf-g++
+all: bin/bin/i686-elf-as bin/bin/i686-elf-gcc
 default: all
