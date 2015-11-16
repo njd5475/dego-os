@@ -30,9 +30,11 @@
 *.iso
 
 #os dirs to exclude
-compiler/
 isodir/
 /bin/
+compiler/gcc*/**
+compiler/binutils*/**
+compiler_built
 .settings
 .classpath
 .project

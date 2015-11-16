@@ -8,12 +8,12 @@
 #------------------------------------------------------------------------------
 
 INSTALL_PATH=./compiler
-PATH := $(INSTALL_PATH)/bin:$(PATH)
-AS = i686-elf-as
-GPLUS = i686-elf-g++
-GCC = i686-elf-gcc
-TOOLS = $(AS) $(GPLUS) $(GCC)
-TARGET = dego
+PATH:=$(INSTALL_PATH)/bin/bin:$(PATH)
+AS=i686-elf-as
+GPLUS=i686-elf-g++
+GCC=i686-elf-gcc
+TOOLS=$(AS) $(GPLUS) $(GCC)
+TARGET=dego
 
 default: $(TARGET).iso
 
@@ -23,17 +23,22 @@ play: $(TARGET).iso
 clean_compiler: clean
 	rm -rf compiler/
 
-compiler_built.txt:
-	./build_gcc_cross.sh
+$(INSTALL_PATH)/bin/bin/$(AS):
+	/bin/bash -c "cd $(INSTALL_PATH) && make bin/bin/$(AS)"
+$(INSTALL_PATH)/bin/bin/$(GCC): $(AS)
+	/bin/bash -c "cd $(INSTALL_PATH) && make bin/bin/$(GCC)"
 
-boot.o: boot.s compiler_built.txt
-	compiler/bin/i686-elf-as boot.s -o boot.o
+compiler_built: $(INSTALL_PATH)/bin/bin/$(AS) $(INSTALL_PATH)/bin/bin/$(GCC)
+	touch compiler_built
 
-kernel.o: kernel.cpp compiler_built.txt
-	compiler/bin/i686-elf-g++ -c kernel.cpp -o kernel.o -ffreestanding -O2 -Wall -Wextra 
+boot.o: boot.s compiler_built
+	$(AS) boot.s -o boot.o
+
+kernel.o: kernel.cpp compiler_built
+	$(GPLUS) -c kernel.cpp -o kernel.o -ffreestanding -O2 -Wall -Wextra 
 
 $(TARGET).bin: boot.o kernel.o
-	compiler/bin/i686-elf-gcc -T linker.ld -o $(TARGET).bin -ffreestanding -O2 -nostdlib boot.o kernel.o
+	$(GCC) -T linker.ld -o $(TARGET).bin -ffreestanding -O2 -nostdlib boot.o kernel.o
 
 isodir/boot/$(TARGET).bin: $(TARGET).bin
 	mkdir -p isodir/boot
