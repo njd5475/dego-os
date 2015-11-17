@@ -1,8 +1,9 @@
 Major Milestones
 X - done, * - in progress, _ - not started
-[_] build cross compiler on linux
-[_] build c++ OS
-[_] build whenz compiler to binary on c++ OS
-[_] build whenz OS on c++ OS
-[_] port whenz compiler to linux
+[X] build cross compiler on linux
+[*] build c++ OS call this degoOS-CC
+[_] build whenz compiler to binary for degoOS-CC OS
+[_] build whenz OS call this DegoOS on degoOS-CC OS using degoOS-CC whenz compiler
+[_] port whenz compiler to DegoOS
+[_] port whenz compiler to linux, windows, mac
 [_] take over the world
