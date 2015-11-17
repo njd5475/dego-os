@@ -34,10 +34,10 @@ Building
 
 Install pre-requisite packages on a linux system.
 	
-		`$ sudo apt-get install git build-essential qemu xorriso`
+		$ sudo apt-get install git build-essential qemu xorriso
 
 Clone the repo and from the commandline run
 
-		`$ make play`
+		$ make play
 
 WARNING: first run will build the cross-compiler which will take at least an hour on a single core.
