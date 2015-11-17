@@ -1,4 +1,4 @@
-# dego-os
+# degoOS-CC
 An Operating System
 
 Requirements
