@@ -2,10 +2,12 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H 1
 
+#include "string_functions.h"
+
 class Terminal
 {
 public:
-	Terminal() : buffer((uint16_t*) 0xB8000), columns(80), total(80*25), color(0) {
+	Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(80), total(80*25), color(0) {
 		for(size_t i = 0; i < total; ++i) {
 			buffer[i] = 0x0F00;
 		}
@@ -37,11 +39,22 @@ public:
 		buffer[index] = buffer[index] & 0xFF00; //clear bottom
 		buffer[index] = buffer[index] | c;
 	}
+	void putWord(const char *c, unsigned short index) {
+		long unsigned int len = strlen(c);
+		for (unsigned short i = 0; i < len; ++i) {
+			putChar(c[i], index + i);
+		}
+	}
+	void putCenteredWord(const char *c, unsigned short row) {
+		unsigned int start_index = (columns /2) - (strlen(c) / 2);
+		putWord(c, start_index);
+	}
 
 
 private:
 	uint16_t* buffer;
 	const unsigned char columns;
+	const unsigned char rows;
 	const size_t total;
 	unsigned char color;
 };
