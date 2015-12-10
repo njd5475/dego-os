@@ -49,6 +49,9 @@ public:
 		unsigned int start_index = (columns /2) - (strlen(c) / 2);
 		putWord(c, start_index);
 	}
+	void drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow) {
+		drawRect(atRow, (columns /2) - (cols/2), cols, rows);
+	}
 
 
 private:
