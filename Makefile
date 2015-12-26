@@ -14,6 +14,8 @@ GPLUS=i686-elf-g++
 GCC=i686-elf-gcc
 TOOLS=$(AS) $(GPLUS) $(GCC)
 TARGET=dego
+CPP_FILES=$(wildcard *.cpp)
+OBJ_FILES=$(addprefix ./,$(notdir $(CPP_FILES:.cpp=.o)))
 
 default: $(TARGET).iso
 
@@ -36,11 +38,11 @@ compiler_built: $(INSTALL_PATH)/bin/bin/$(AS) $(INSTALL_PATH)/bin/bin/$(GCC)
 boot.o: boot.s compiler_built
 	$(AS) boot.s -o boot.o
 
-kernel.o: kernel.cpp compiler_built
-	$(GPLUS) -c kernel.cpp -o kernel.o -ffreestanding -O2 -Wall -Wextra 
+%.o: %.cpp
+	$(GPLUS) -ffreestanding -O2 -Wall -Wextra -c -o $@ $^ 
 
-$(TARGET).bin: boot.o kernel.o
-	$(GCC) -T linker.ld -o $(TARGET).bin -ffreestanding -O2 -nostdlib boot.o kernel.o
+$(TARGET).bin: boot.o kernel.o $(OBJ_FILES)
+	$(GCC) -T linker.ld -o $(TARGET).bin -ffreestanding -O2 -nostdlib boot.o $(OBJ_FILES)
 
 isodir/boot/$(TARGET).bin: $(TARGET).bin
 	mkdir -p isodir/boot

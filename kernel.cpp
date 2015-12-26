@@ -17,6 +17,7 @@
 #error "This needs to be compiled with a ix86-elf compiler"
 #endif
 
+#include "context.h"
 #include "action.h"
 #include "terminal.h"
 
@@ -151,8 +152,9 @@ void kernel_main() {
   b.drawCenteredRectAtRow(10,20,5);
 
   Event *type = new Event[30];
+  Context memoryContext;
   for(int i = 0; i < 30; ++i) {
-    type[i].action._do();
+    type[i].action._do(&memoryContext);
     type[i].preCondition.check();
   }
 
