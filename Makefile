@@ -15,7 +15,9 @@ GCC=i686-elf-gcc
 TOOLS=$(AS) $(GPLUS) $(GCC)
 TARGET=dego
 CPP_FILES=$(wildcard *.cpp)
-OBJ_FILES=$(addprefix ./,$(notdir $(CPP_FILES:.cpp=.o)))
+WH_FILES=$(wildcard *.wh)
+WH_OBJ_FILES=$(addprefix ./, $(notdir $(WH_FILES:.wh=.o)))
+OBJ_FILES=$(addprefix ./, $(notdir $(CPP_FILES:.cpp=.o)))
 
 default: $(TARGET).iso
 
@@ -39,10 +41,13 @@ boot.o: boot.s compiler_built
 	$(AS) boot.s -o boot.o
 
 %.o: %.cpp
-	$(GPLUS) -ffreestanding -O2 -Wall -Wextra -c -o $@ $^ 
+	$(GPLUS) -ffreestanding -O2 -Wall -Wextra -c -o $@ $^
 
-$(TARGET).bin: boot.o kernel.o $(OBJ_FILES)
-	$(GCC) -T linker.ld -o $(TARGET).bin -ffreestanding -O2 -nostdlib boot.o $(OBJ_FILES)
+%.o: %.wh
+	./compiler/bin/i686-elf/bin/objcopy --input binary --output elf32-i386 --binary-architecture i386 $^ $@
+
+$(TARGET).bin: boot.o $(OBJ_FILES) $(WH_OBJ_FILES)
+	$(GCC) -T linker.ld -o $(TARGET).bin -fno-rtti -fno-exceptions -ffreestanding -O2 -nostdlib boot.o $(OBJ_FILES) $(WH_OBJ_FILES)
 
 isodir/boot/$(TARGET).bin: $(TARGET).bin
 	mkdir -p isodir/boot

@@ -6,6 +6,7 @@
 #include "new.h"
 #include "function.h"
 #include "string_functions.h"
+#include "script.h"
 
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -107,7 +108,7 @@ public:
     }
     return this;
   }
-        
+
   KernelBuilder *drawRect(unsigned char row, unsigned char col, unsigned char width,
       unsigned char height) {
     t.drawRect(row, col, width, height);
@@ -139,9 +140,13 @@ private:
   Terminal t;
 };
 
+extern char _binary_program_wh_start;
+extern char _binary_program_wh_end;
+
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
+
 void kernel_main() {
   KernelBuilder b;
 
@@ -149,15 +154,19 @@ void kernel_main() {
   b.putWord("Hello World! - Dego", 0);
   b.putCenteredWord("DegoOS-CC", 2);
 
-  b.drawCenteredRectAtRow(10,20,5);
+  const char* p = &_binary_program_wh_start;
+  Token *next = new Token(*p++);
 
-  Event *type = new Event[30];
-  Context memoryContext;
-  for(int i = 0; i < 30; ++i) {
-    type[i].action._do(&memoryContext);
-    type[i].preCondition.check();
+  int token_count = 0;
+  while(*p) {
+    Token *n = next->add(*p++);
+    if(n != next) {
+      ++token_count;
+    }
+    next = n;
   }
 
+  //b.putNumber(token_count, 0);
 //  char h[80];
 //  h[0] = 'H';
 //  unsigned int i = 0;
