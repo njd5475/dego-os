@@ -1,6 +1,7 @@
 #ifndef _script_h_
 #define _script_h_ 1
 
+class KernelBuilder;
 enum Type {
     UNKNOWN = 0,
     NUMBER,
@@ -38,7 +39,7 @@ public:
 
   bool hasToken() {return !token;}
   void addChild(Node *);
-  void print(Terminal *);
+  void print(KernelBuilder *);
 protected:
   Node(Token *, Node *);
 

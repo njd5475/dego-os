@@ -1,6 +1,8 @@
 #include "new.h"
 #include "string_functions.h"
 #include "script.h"
+#include "terminal.h"
+#include "kernel_builder.h"
 
 Token::Token(char c) : _next(NULL), _prev(NULL), _str(new char), _type(UNKNOWN) {
   _str[0] = c;
@@ -84,6 +86,11 @@ void Node::addChild(Node *node) {
   ++children_count;
   delete []children;
   children = new_children;
+}
+
+void Node::print(KernelBuilder *b) {
+  b->putWord("Node::print", 1, 0);
+  b->putWord("A", 2, 0);
 }
 
 Token *whenz(Token *, Node *n);

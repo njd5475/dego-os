@@ -7,6 +7,7 @@
 #include "function.h"
 #include "string_functions.h"
 #include "script.h"
+#include "kernel_builder.h"
 
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -66,84 +67,6 @@ struct Event {
   Action action;
 };
 
-unsigned int calcIndex(unsigned int row, unsigned int col, unsigned int totalCol) {
-  return row * totalCol + col;
-}
-
-class KernelBuilder {
-public:
-  KernelBuilder() {
-  }
-
-  KernelBuilder *when() {
-    return this;
-  }
-  KernelBuilder *kernelStarts() {
-    return this;
-  }
-  KernelBuilder *_do() {
-    return this;
-  }
-  KernelBuilder *initializeTerminal() {
-    return this;
-  }
-  KernelBuilder *putWord(const char *c, unsigned short row, unsigned short col) {
-    t.putWord(c, calcIndex(row, col, COLUMNS));
-    return this;
-  }
-  KernelBuilder *putCenteredWord(const char *c, unsigned short row) {
-    t.putCenteredWord(c, row);
-    return this;
-  }
-  KernelBuilder *putNumber(unsigned int num, unsigned short row, unsigned short col) {
-    this->putNumber(num, calcIndex(row, col, COLUMNS), 10);
-    return this;
-  }
-  KernelBuilder *putNumber(unsigned int num, unsigned int index, unsigned char base) {
-    unsigned int i = index
-        + ((base == 10) ? digitLength10(num) : digitLength(num, base));
-    while (num > 0) {
-      putChar(
-          ((num % base) > 10) ?
-              ('A' + ((num % base) - 10)) : ('0' + (num % base)),
-          i);
-      num /= base;
-      --i;
-    }
-    return this;
-  }
-
-  KernelBuilder *drawRect(unsigned char row, unsigned char col, unsigned char width,
-      unsigned char height) {
-    t.drawRect(row, col, width, height);
-    return this;
-  }
-  KernelBuilder *drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow) {
-    t.drawCenteredRectAtRow(rows, cols, atRow);
-  }
-  KernelBuilder *putChar(char c, unsigned short index) {
-    t.putChar(c, index);
-    return this;
-  }
-  KernelBuilder *putInt(unsigned short num) {
-    unsigned short i = 0;
-    unsigned short cpynum = num;
-    while (cpynum > 0) {
-      ++i;
-      cpynum /= 10;
-    }
-    while (num > 0) {
-      unsigned short c = num % 10;
-      char cc = (char) c;
-      t.putChar(cc + ((char) '0'), --i);
-      num /= 10;
-    }
-    return this;
-  }
-private:
-  Terminal t;
-};
-
 extern char _binary_program_wh_start;
 extern char _binary_program_wh_end;
 
@@ -171,8 +94,15 @@ void kernel_main() {
     next = n;
   }
 
-  Node *ast = buildAST(head);
-
+  b.putWord("Building AST...", 0, 0);
+  Node *ast = NULL;
+  if(ast == NULL) {
+    b.putWord("BAD AST!", 0, 0);
+  }else{
+    //ast->print(&b);
+    b.putWord("Still Good", 5, 0);
+  }
+  b.putWord("Done!", 0, 0);
 
   void *ptr = &endkernel;
 }
