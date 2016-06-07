@@ -155,11 +155,12 @@ void kernel_main() {
   KernelBuilder b;
 
   // when kernel starts do actions
-  b.putWord("Hello World! - Dego", 0);
+  b.putWord("Hello World! - Dego", 3, 0);
   b.putCenteredWord("DegoOS-CC", 2);
 
   const char* p = &_binary_program_wh_start;
-  Token *next = new Token(*p++);
+  Token *head = new Token(*p++);
+  Token *next = head;
 
   int token_count = 0;
   while(*p) {
@@ -170,30 +171,8 @@ void kernel_main() {
     next = n;
   }
 
-  //b.putNumber(token_count, 0);
-//  char h[80];
-//  h[0] = 'H';
-//  unsigned int i = 0;
-//  while (true) {
-//    unsigned char k = inportb(0x64);
-//    b.putNumber(k, 81, 16);
-//    if (k == 0x1D) {
-//      unsigned char p = inportb(0x60);
-//      switch (p) {
-//      case 0x9E:
-//        h[++i] = 'A';
-//      default:
-//        h[++i] = ' ';
-//      }
-//      h[i + 1] = '\0';
-//    }
-//    b.putWord(h, 50);
-//  }
+  Node *ast = buildAST(head);
+
 
   void *ptr = &endkernel;
-
-}
-
-unsigned int calcIndex(unsigned int row, unsigned int col, unsigned int totalCol) {
-  return row * totalCol + col;
 }

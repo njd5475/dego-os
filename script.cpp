@@ -2,33 +2,33 @@
 #include "string_functions.h"
 #include "script.h"
 
-Token::Token(char c) : next(NULL), prev(NULL), str(new char), type(UNKNOWN) {
-  str[0] = c;
-  type = tok_type(c);
+Token::Token(char c) : _next(NULL), _prev(NULL), _str(new char), _type(UNKNOWN) {
+  _str[0] = c;
+  _type = tok_type(c);
 }
 
-Token::Token(char c, Token *prev) : next(NULL), prev(prev), str(new char), type(UNKNOWN) {
-  str[0] = c;
-  type = tok_type(c);
+Token::Token(char c, Token *prev) : _next(NULL), _prev(prev), _str(new char), _type(UNKNOWN) {
+  _str[0] = c;
+  _type = tok_type(c);
 }
 
 Token::~Token() {
-  delete str;
-  delete next;
+  delete _str;
+  delete _next;
 }
 
 Token *Token::add(char c) {
   Type nextType = tok_type(c);
-  if(nextType != type) {
-    next = new Token(c, this);
-    return next;
+  if(nextType != ttype()) {
+    _next = new Token(c, this);
+    return _next;
   }else{
-    int len = strlen(str);
-    const char *oldstr = str;
-    str = new char[len+1];
-    strcpy(str, oldstr);
+    int len = strlen(_str);
+    const char *oldstr = _str;
+    _str = new char[len+1];
+    strcpy(_str, oldstr);
     delete oldstr;
-    str[len+1] = c;
+    _str[len+1] = c;
     return this;
   }
 }
@@ -52,4 +52,79 @@ Type Token::tok_type(char c) {
   }else{
     return UNKNOWN;
   }
+}
+
+Node::Node(Token *t) : token(t), parent(NULL) {
+
+}
+
+Node::Node(Token *t, Node *parent) : token(t), parent(NULL) {
+
+}
+
+Node::Node() : token(NULL), parent(NULL) {
+
+}
+
+Node::~Node() {
+  //delete allocated nodes
+  while(children_count > 0) {
+    delete children[children_count++];
+  }
+  delete children; //delete pointer array
+}
+
+void Node::addChild(Node *node) {
+  Node **new_children = new Node*[children_count+1];
+  //copy
+  for(size_t i = 0; i < children_count; ++i) {
+    new_children[i] = children[i];
+  }
+  new_children[children_count] = node;
+  ++children_count;
+  delete []children;
+  children = new_children;
+}
+
+Token *whenz(Token *, Node *n);
+Token *keyword(const char *word, Token *t, Node *current);
+Token *conditions(Token *t, Node *current);
+Token *actions(Token *t, Node *current);
+Token *identifier(Token *t, Node *current);
+
+Node *buildAST(Token *head) {
+  head = whenz(head, new Node());
+}
+
+Token *whenz(Token *tok, Node *current) {
+  tok = keyword("when", tok, current);
+  tok = conditions(tok, current);
+  tok = keyword("do", tok, current);
+  tok = actions(tok, current);
+}
+
+Token *keyword(const char *word, Token *t, Node *n) {
+  if(strcmp(word, t->value())) {
+    n->addChild(new Node(t));
+    return t->next();
+  }
+  return t;
+}
+
+Token *conditions(Token *t, Node *n) {
+  Node *node = new Node();
+  n->addChild(node);
+  t = identifier(t, node);
+}
+
+Token *identifier(Token *t, Node *n) {
+  if(t->ttype() == LETTER || t->ttype() == NUMBER) {
+    t = t->next();
+    n->addChild(new Node(t));
+  }
+  return t;
+}
+
+Token *actions(Token *t, Node *n) {
+
 }

@@ -12,6 +12,16 @@ void strcpy(char *dst, const char *src) {
 		dst[ret++] = src[ret];
 	}
 }
+bool strcmp(const char *lval, const char *rval) {
+	while(*lval && *rval) {
+		if(*lval != *rval) {
+			return false;
+		}
+		lval++;
+		rval++;
+	}
+	return true;
+}
 uint32_t digitLength(uint32_t n, uint16_t base) {
 	uint32_t i = 0;
 	while (n > 0) {

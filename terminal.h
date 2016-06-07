@@ -2,12 +2,13 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H 1
 
+#include "kernel.h"
 #include "string_functions.h"
 
 class Terminal
 {
 public:
-	Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(80), total(80*25), color(0) {
+	Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(COLUMNS), total(80*25), color(0) {
 		for(size_t i = 0; i < total; ++i) {
 			buffer[i] = 0x0F00;
 		}
@@ -18,12 +19,12 @@ public:
 		#define BOT_RIGHT 217
 		#define BOT_LEFT  192
 		#define TOP_RIGHT 191
-		#define TOP_BOT	196	
-		#define LEFT_RIGHT 179	
-		putChar(TOP_LEFT, row * columns + col);	
+		#define TOP_BOT	196
+		#define LEFT_RIGHT 179
+		putChar(TOP_LEFT, row * columns + col);
 		putChar(BOT_LEFT, (row+height) * columns + col);
-		putChar(BOT_RIGHT, (row+height) * columns + (col+width));	
-		putChar(TOP_RIGHT, row * columns + (col+width));	
+		putChar(BOT_RIGHT, (row+height) * columns + (col+width));
+		putChar(TOP_RIGHT, row * columns + (col+width));
 
 		for(unsigned char i = row+1; i < (row+height); ++i) {
 			putChar(LEFT_RIGHT, i * columns + col);
