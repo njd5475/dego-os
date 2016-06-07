@@ -66,6 +66,10 @@ struct Event {
   Action action;
 };
 
+unsigned int calcIndex(unsigned int row, unsigned int col, unsigned int totalCol) {
+  return row * totalCol + col;
+}
+
 class KernelBuilder {
 public:
   KernelBuilder() {
@@ -83,16 +87,16 @@ public:
   KernelBuilder *initializeTerminal() {
     return this;
   }
-  KernelBuilder *putWord(const char *c, unsigned short index) {
-    t.putWord(c, index);
+  KernelBuilder *putWord(const char *c, unsigned short row, unsigned short col) {
+    t.putWord(c, calcIndex(row, col, COLUMNS));
     return this;
   }
   KernelBuilder *putCenteredWord(const char *c, unsigned short row) {
     t.putCenteredWord(c, row);
     return this;
   }
-  KernelBuilder *putNumber(unsigned int num, unsigned int index) {
-    this->putNumber(num, index, 10);
+  KernelBuilder *putNumber(unsigned int num, unsigned short row, unsigned short col) {
+    this->putNumber(num, calcIndex(row, col, COLUMNS), 10);
     return this;
   }
   KernelBuilder *putNumber(unsigned int num, unsigned int index, unsigned char base) {
