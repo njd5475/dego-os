@@ -83,3 +83,7 @@ KernelBuilder *KernelBuilder::putInt(unsigned short num) {
   }
   return this;
 }
+
+KernelBuilder *KernelBuilder::put(const char* line) {
+  t->printLine(line);
+}

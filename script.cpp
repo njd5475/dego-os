@@ -4,6 +4,8 @@
 #include "terminal.h"
 #include "kernel_builder.h"
 
+Terminal term;
+
 Token::Token(char c) : _next(NULL), _prev(NULL), _str(new char), _type(UNKNOWN) {
   _str[0] = c;
   _type = tok_type(c);
@@ -57,11 +59,11 @@ Type Token::tok_type(char c) {
 }
 
 Node::Node(Token *t) : token(t), parent(NULL) {
-
+  term.printLine("root:Node");
 }
 
 Node::Node(Token *t, Node *parent) : token(t), parent(NULL) {
-
+  term.printLine("child:Node");
 }
 
 Node::Node() : token(NULL), parent(NULL) {
@@ -89,8 +91,10 @@ void Node::addChild(Node *node) {
 }
 
 void Node::print(KernelBuilder *b) {
-  b->putWord("Node::print", 1, 0);
-  b->putWord("A", 2, 0);
+  b->put("node");
+  // for(size_t i = 0; i < children_count; ++i) {
+  //   children[i]->print(b);
+  // }
 }
 
 Token *whenz(Token *, Node *n);
@@ -100,7 +104,11 @@ Token *actions(Token *t, Node *current);
 Token *identifier(Token *t, Node *current);
 
 Node *buildAST(Token *head) {
-  head = whenz(head, new Node());
+  term.printLine("buildAST");
+  Node *ast = new Node();
+  //head = whenz(head, ast);
+  term.printLine("done");
+  return ast;
 }
 
 Token *whenz(Token *tok, Node *current) {
@@ -115,7 +123,7 @@ Token *keyword(const char *word, Token *t, Node *n) {
     n->addChild(new Node(t));
     return t->next();
   }
-  return t;
+  return t->next();
 }
 
 Token *conditions(Token *t, Node *n) {

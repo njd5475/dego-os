@@ -23,37 +23,6 @@
 #include "action.h"
 #include "terminal.h"
 
-/* Hardware text mode color constants. */
-enum vga_color {
-  COLOR_BLACK = 0,
-  COLOR_BLUE = 1,
-  COLOR_GREEN = 2,
-  COLOR_CYAN = 3,
-  COLOR_RED = 4,
-  COLOR_MAGENTA = 5,
-  COLOR_BROWN = 6,
-  COLOR_LIGHT_GREY = 7,
-  COLOR_DARK_GREY = 8,
-  COLOR_LIGHT_BLUE = 9,
-  COLOR_LIGHT_GREEN = 10,
-  COLOR_LIGHT_CYAN = 11,
-  COLOR_LIGHT_RED = 12,
-  COLOR_LIGHT_MAGENTA = 13,
-  COLOR_LIGHT_BROWN = 14,
-  COLOR_WHITE = 15,
-};
-
-unsigned char make_color(enum vga_color fg, enum vga_color bg) {
-  return fg | bg << 4;
-}
-
-uint16_t make_vgaentry(char c, unsigned char color) {
-  uint16_t c16 = c;
-  uint16_t color16 = color;
-  return c16 | color16 << 8;
-}
-
-
 class Condition {
 
 public:
@@ -78,8 +47,8 @@ void kernel_main() {
   KernelBuilder b;
 
   // when kernel starts do actions
-  b.putWord("Hello World! - Dego", 3, 0);
-  b.putCenteredWord("DegoOS-CC", 2);
+  b.put("Hello World! - Dego");
+  b.put("Another line printed");
 
   const char* p = &_binary_program_wh_start;
   Token *head = new Token(*p++);
@@ -94,15 +63,15 @@ void kernel_main() {
     next = n;
   }
 
-  b.putWord("Building AST...", 0, 0);
-  Node *ast = NULL;
+  b.put("Building AST...");
+  Node *ast = buildAST(head);
   if(ast == NULL) {
-    b.putWord("BAD AST!", 0, 0);
+    b.put("BAD AST!");
   }else{
-    //ast->print(&b);
-    b.putWord("Still Good", 5, 0);
+    b.put("Got ast printing...");
+    ast->print(&b);
   }
-  b.putWord("Done!", 0, 0);
+  b.put("Done!");
 
   void *ptr = &endkernel;
 }

@@ -30,8 +30,7 @@ uint16_t make_vgaentry(char c, unsigned char color) {
   return c16 | color16 << 8;
 }
 
-
-Terminal::Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(COLUMNS), total(80*25), color(0) {
+Terminal::Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(COLUMNS), total(COLUMNS*25), color(0) {
   for(size_t i = 0; i < total; ++i) {
     buffer[i] = 0x0F00;
   }
@@ -71,16 +70,55 @@ void Terminal::putChar(uint16_t c, size_t index) {
   buffer[index] = buffer[index] & 0xFF00; //clear bottom
   buffer[index] = buffer[index] | c;
 }
+
+const char Terminal::get(size_t row, size_t col) {
+  return get(calcIndex(row, col));
+}
+
+const char Terminal::get(size_t index) {
+  return (const char)((buffer[index] & 0x00FF));
+}
+
+void Terminal::clearChar(size_t row, size_t col) {
+  putChar(0, row, col);
+}
+
+void Terminal::clearChar(size_t index) {
+  putChar(0, index);
+}
+
 void Terminal::putWord(const char *c, unsigned short index) {
   long unsigned int len = strlen(c);
   for (unsigned short i = 0; i < len; ++i) {
     putChar(c[i], index + i);
   }
 }
+
 void Terminal::putCenteredWord(const char *c, unsigned short row) {
   unsigned int start_index = (columns /2) - (strlen(c) / 2);
   putWord(c, start_index);
 }
+
 void Terminal::drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow) {
   drawRect(atRow, (columns /2) - (cols/2), cols, rows);
+}
+
+void Terminal::printLine(const char* line) {
+  //start at line zero and move each line up one in the buffer
+  bool lineEnded = false;
+  for(size_t row = 1; row <= rows; ++row) {
+    for(size_t col = 0; col < columns; ++col) {
+      if(row == rows) {
+        if(!lineEnded) {
+          lineEnded = (line[col] == 0);
+        }
+        putChar(lineEnded ? ' ' : line[col], row-1, col);
+      }else{
+        putChar(get(row, col), row-1, col);
+      }
+    }
+  }
+}
+
+void Terminal::print(const char* line) {
 }

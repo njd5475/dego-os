@@ -22,6 +22,7 @@ public:
   KernelBuilder *drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow);
   KernelBuilder *putChar(char c, unsigned short index);
   KernelBuilder *putInt(unsigned short num);
+  KernelBuilder *put(const char *c);
 
 private:
   unsigned int calcIndex(unsigned int row, unsigned int col, unsigned int totalCol) {
