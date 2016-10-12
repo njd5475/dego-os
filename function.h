@@ -16,4 +16,6 @@ void outportb(unsigned int port, unsigned char value);
 /* Stop Interrupts */
 void stopints();
 
+bool is_real();
+
 #endif /* FUNCTION_H_ */

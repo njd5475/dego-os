@@ -73,5 +73,11 @@ void kernel_main() {
   }
   b.put("Done!");
 
+  if(is_real()) {
+    b.put("We are in real mode");
+  }else{
+    b.put("We are in protected mode");
+  }
+
   void *ptr = &endkernel;
 }

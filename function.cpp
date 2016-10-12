@@ -25,5 +25,11 @@ inline void stopints() {
 	asm ("cli");
 }
 
-
-
+bool is_real() {
+  int b = -1;
+  asm ("smsw    %0\n\t"
+       :"=r"(b)        /* output */
+       ::
+       );
+  return (b & 1) == 0;
+}
