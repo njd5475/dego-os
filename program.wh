@@ -1,1 +1,2 @@
-My new script.
+when os_starts
+  print Hello from Whenz

@@ -60,9 +60,5 @@ isodir/boot/grub/grub.cfg: grub.cfg
 $(TARGET).iso: $(TARGET).bin isodir/boot/$(TARGET).bin isodir/boot/grub/grub.cfg
 	grub-mkrescue -o $(TARGET).iso isodir
 
-clean: $(TARGET).iso
-	rm *.o
-	rm $(TARGET).bin
-	rm isodir/boot/$(TARGET).bin
-	rm isodir/boot/grub/grub.cfg
-	rm $(TARGET).iso
+clean:
+	rm *.o $(TARGET).bin isodir/boot/grub/grub.cfg isodir/boot/$(TARGET).bin $(TARGET).iso
