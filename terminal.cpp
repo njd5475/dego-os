@@ -20,6 +20,8 @@ enum vga_color {
   COLOR_WHITE = 15,
 };
 
+#define BCLEAR 0x0F00
+
 unsigned char make_color(enum vga_color fg, enum vga_color bg) {
   return fg | bg << 4;
 }
@@ -30,9 +32,9 @@ uint16_t make_vgaentry(char c, unsigned char color) {
   return c16 | color16 << 8;
 }
 
-Terminal::Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(COLUMNS), total(COLUMNS*25), color(0) {
-  for(size_t i = 0; i < total; ++i) {
-    buffer[i] = 0x0F00;
+Terminal::Terminal() : buffer((uint16_t*) 0xB8000), rows(25), columns(COLUMNS), totalChars(COLUMNS*25), color(0), curCol(0), curLine(0) {
+  for(size_t i = 0; i < totalChars; ++i) {
+    buffer[i] = BCLEAR;
   }
 }
 
@@ -59,66 +61,95 @@ void Terminal::drawRect(unsigned char row, unsigned char col, unsigned char widt
 }
 
 void Terminal::putChar(uint16_t c, size_t row, size_t col) {
-  putChar(c, calcIndex(row, col));
-}
-
-void Terminal::putWord(const char *c, size_t row, size_t col) {
-  putWord(c, calcIndex(row, col));
+  this->putChar(c, this->calcIndex(row, col));
 }
 
 void Terminal::putChar(uint16_t c, size_t index) {
-  buffer[index] = buffer[index] & 0xFF00; //clear bottom
-  buffer[index] = buffer[index] | c;
+  this->buffer[index] = this->buffer[index] & 0xFF00; //clear bottom
+  this->buffer[index] = this->buffer[index] | c;
 }
 
 const char Terminal::get(size_t row, size_t col) {
-  return get(calcIndex(row, col));
+  return this->get(this->calcIndex(row, col));
 }
 
 const char Terminal::get(size_t index) {
-  return (const char)((buffer[index] & 0x00FF));
+  return (const char)((this->buffer[index] & 0x00FF));
 }
 
 void Terminal::clearChar(size_t row, size_t col) {
-  putChar(0, row, col);
+  this->clearChar(0, this->calcIndex(row, col));
 }
 
 void Terminal::clearChar(size_t index) {
-  putChar(0, index);
+  this->buffer[index] &= BCLEAR; // clear both
+}
+
+void Terminal::putWord(const char *c, size_t row, size_t col) {
+  this->putWord(c, this->calcIndex(row, col));
 }
 
 void Terminal::putWord(const char *c, unsigned short index) {
   long unsigned int len = strlen(c);
   for (unsigned short i = 0; i < len; ++i) {
-    putChar(c[i], index + i);
+    this->putChar(c[i], index + i);
   }
 }
 
 void Terminal::putCenteredWord(const char *c, unsigned short row) {
   unsigned int start_index = (columns /2) - (strlen(c) / 2);
-  putWord(c, start_index);
+  this->putWord(c, start_index);
 }
 
 void Terminal::drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow) {
-  drawRect(atRow, (columns /2) - (cols/2), cols, rows);
+  this->drawRect(atRow, (columns /2) - (cols/2), cols, rows);
 }
 
-void Terminal::printLine(const char* line) {
-  //start at line zero and move each line up one in the buffer
-  bool lineEnded = false;
-  for(size_t row = 1; row <= rows; ++row) {
-    for(size_t col = 0; col < columns; ++col) {
-      if(row == rows) {
-        if(!lineEnded) {
-          lineEnded = (line[col] == 0);
-        }
-        putChar(lineEnded ? ' ' : line[col], row-1, col);
-      }else{
-        putChar(get(row, col), row-1, col);
+void Terminal::lineFeed() {
+  if(this->curLine < this->rows) {
+    this->curCol = 0;
+    ++this->curLine;
+  }else{
+    for(int row = 1; row < this->rows-1; ++row) {
+      for(int col = 0; col < this->columns; ++col) {
+        this->putChar(this->get(row, col), row-1, col);
       }
     }
   }
 }
 
+void Terminal::printLine(const char* line) {
+  //this->lineFeed();
+
+  // now do the last row
+  if(this->curCol > 0) {
+    ++this->curLine;
+    this->curCol = 0;
+  }
+  this->print(line);
+
+  ++this->curLine;
+  this->curCol = 0;
+
+  if(this->curLine >= this->rows) {
+    this->curLine = this->rows;
+  }
+}
+
 void Terminal::print(const char* line) {
+  int li = 0;
+  while(line[li] != 0 && li < this->columns) {
+    this->putChar(line[li], this->curLine, this->curCol);
+    ++li;
+    ++this->curCol;
+  }
+
+  if(this->curCol == columns) {
+    this->curCol = 0;
+    ++this->curLine;
+
+    if(this->curLine >= this->rows) {
+      this->curLine = this->rows;
+    }
+  }
 }

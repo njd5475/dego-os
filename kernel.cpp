@@ -47,11 +47,11 @@ void kernel_main() {
   KernelBuilder b;
 
   // when kernel starts do actions
-  b.put("Hello World! - Dego");
+  b.putln("Hello World! - Dego");
   if(is_real()) {
-    b.put("We are in real mode");
+    b.putln("We are in real mode");
   }else{
-    b.put("We are in protected mode");
+    b.putln("We are in protected mode");
   }
 
   const char* p = &_binary_program_wh_start;
@@ -67,15 +67,22 @@ void kernel_main() {
     next = n;
   }
 
-  Parser parser(&b);
+  Parser parser(b);
   Node *ast = parser.parse(head);
   if(ast == NULL) {
-    b.put("BAD AST!");
+    b.putln("Failed to parse kernel program");
   }else{
-    b.put("Got ast printing...");
-    ast->print(&b);
+    b.putln("Printing AST...");
+    ast->print(b);
   }
-  b.put("Done building programs!");
+
+  const char *toCp = "toCopy";
+  char *copy = new char[strlen(toCp)+1];
+  strcpy(copy, toCp);
+  copy[strlen(toCp)+1] = 'k';
+  b.put("Copied ");
+  b.put(copy);
+  b.put("", true);
 
   void *ptr = &endkernel;
 }

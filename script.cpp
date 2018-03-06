@@ -27,10 +27,11 @@ Token *Token::add(char c) {
   }else{
     int len = strlen(_str);
     const char *oldstr = _str;
-    _str = new char[len+1];
+    _str = new char[len+2];
     strcpy(_str, oldstr);
     delete oldstr;
-    _str[len+1] = c;
+    _str[len] = c;
+    _str[len+1] = '\0';
     return this;
   }
 }
@@ -56,36 +57,39 @@ Type Token::tok_type(char c) {
   }
 }
 
-void Token::print(KernelBuilder *b) {
+void Token::print(KernelBuilder &b) {
   switch(_type) {
     case NUMBER:
-      b->put("NUMBER");
+      b.put("NUMBER");
       break;
     case LETTER:
-      b->put("LETTER");
+      b.put("LETTER");
       break;
     case OPERATOR:
-      b->put("OPERATOR");
+      b.put("OPERATOR");
       break;
     case WHITESPACE:
-      b->put("WHITESPACE");
+      b.put("WHITESPACE");
       break;
     case NEWLINE:
-      b->put("NEWLINE");
+      b.put("NEWLINE");
       break;
     case QUOTE:
-      b->put("QUOTE");
+      b.put("QUOTE");
       break;
     case UNKNOWN:
     default:
-      b->put("UNKNOWN");
+      b.put("UNKNOWN");
       break;
   }
+  b.put(":");
+  b.put(this->tok());
 }
 
-Node::Node(Token *t) : children_count(0), token(t), parent(NULL) {}
-Node::Node(Token *t, Node *parent) : children_count(0), token(t), parent(NULL) {}
-Node::Node() : children_count(0), token(NULL), parent(NULL) {}
+Node::Node(const char* name, Token *t) : name(name), children_count(0), token(t), parent(NULL) {}
+Node::Node(const char* name) : name(name), children_count(0), token(NULL), parent(NULL) {}
+Node::Node(Token *t, Node *parent) : name("Unamed"), children_count(0), token(t), parent(NULL) {}
+Node::Node() : name("blank"), children_count(0), token(NULL), parent(NULL) {}
 Node::~Node() {
   //delete allocated nodes
   while(children_count > 0) {
@@ -106,18 +110,30 @@ void Node::addChild(Node *node) {
   children = new_children;
 }
 
-void Node::print(KernelBuilder *b) {
-  b->put("> ");
-  if(token != NULL) {
-    token->print(b);
+void Node::print(KernelBuilder &b) {
+  this->print(1, b);
+}
+
+void Node::print(int spaces, KernelBuilder &b) {
+  for(int i = 0; i < spaces; ++i) {
+    b.put("-");
   }
+  b.put(name);
+
+  if(token != NULL) {
+    b.put(" [");
+    token->print(b);
+    b.put("]");
+  }
+  b.put("", true);
+
   for(size_t i = 0; i < children_count; ++i) {
-     children[i]->print(b);
+     children[i]->print(spaces+1, b);
   }
 }
 
 /* Start of Parser */
-Parser::Parser(KernelBuilder *b) : _b(b) {}
+Parser::Parser(KernelBuilder &b) : _b(b) {}
 Parser::~Parser() {}
 
 Node *Parser::parse(Token *head) {
@@ -125,7 +141,6 @@ Node *Parser::parse(Token *head) {
   while(head != NULL) {
     head = whenz(head, n);
   }
-  _b->put("done");
   return n;
 }
 
@@ -143,8 +158,11 @@ Token *Parser::whenz(Token *tok, Node *current) {
 
 Token *Parser::keyword(const char *word, Token *t, Node *n) {
   t = consumeWhitespace(t);
-  if(strcmp(word, t->value())) {
-    n->addChild(new Node(t));
+  if(strcmp(word, t->tok())) {
+    _b.putNumber((unsigned char)(t->tok()[1]+5), 15, (unsigned short)5);
+    Node *child = new Node(word, t);
+    child->addChild(new Node());
+    n->addChild(child);
     return t->next();
   }else{
     unknownToken(t);
@@ -153,7 +171,7 @@ Token *Parser::keyword(const char *word, Token *t, Node *n) {
 }
 
 Token *Parser::conditions(Token *t, Node *n) {
-  Node *node = new Node();
+  Node *node = new Node("conditions");
   t = identifier(t, node);
   if(t != NULL) {
     n->addChild(node);
@@ -165,8 +183,8 @@ Token *Parser::conditions(Token *t, Node *n) {
 Token *Parser::identifier(Token *t, Node *n) {
   t = consumeWhitespace(t);
   if(t->ttype() == LETTER || t->ttype() == NUMBER) {
+    n->addChild(new Node("Identifier", t));
     t = t->next();
-    n->addChild(new Node(t));
   }
   return t;
 }
@@ -183,12 +201,12 @@ Token *Parser::actions(Token *t, Node *n) {
 }
 
 Token *Parser::unknownToken(Token *t) {
-  _b->put("Unknown Token");
-  _b->put(t->value());
+  _b.put("Unknown Token");
+  _b.put(t->tok());
   return NULL;
 }
 
 Token *Parser::nullToken(Node *current) {
-  _b->put("Unexpected NULL token!");
+  _b.put("Unexpected NULL token!");
   return NULL;
 }

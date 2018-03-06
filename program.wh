@@ -1,2 +1,8 @@
-when os_starts
+when os_starts do
   print Hello from Whenz
+
+when @os.protectedMode
+  print We are in protected mode
+
+when not @os.protectedMode
+  print We are not in protected mode

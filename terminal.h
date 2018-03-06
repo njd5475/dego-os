@@ -21,6 +21,7 @@ public:
 	void putWord(const char *c, unsigned short index);
 	void putCenteredWord(const char *c, unsigned short row);
 	void drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow);
+	void lineFeed();
 	void printLine(const char *c);
 	void print(const char *c);
 
@@ -34,8 +35,9 @@ private:
 	size_t curLine;
 	const unsigned char columns;
 	const unsigned char rows;
-	const size_t total;
+	const size_t totalChars;
 	unsigned char color;
+	size_t curCol;
 };
 
 #endif

@@ -4,42 +4,42 @@
 KernelBuilder::KernelBuilder() : t(new Terminal()) {
 }
 
-KernelBuilder *KernelBuilder::when() {
-  return this;
+KernelBuilder &KernelBuilder::when() {
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::kernelStarts() {
-  return this;
+KernelBuilder &KernelBuilder::kernelStarts() {
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::_do() {
-  return this;
+KernelBuilder &KernelBuilder::_do() {
+  return *this;
 }
 
 Terminal *KernelBuilder::terminal() {
   return t;
 }
 
-KernelBuilder *KernelBuilder::initializeTerminal() {
-  return this;
+KernelBuilder &KernelBuilder::initializeTerminal() {
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::putWord(const char *c, unsigned short row, unsigned short col) {
+KernelBuilder &KernelBuilder::putWord(const char *c, unsigned short row, unsigned short col) {
   t->putWord(c, calcIndex(row, col, COLUMNS));
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::putCenteredWord(const char *c, unsigned short row) {
+KernelBuilder &KernelBuilder::putCenteredWord(const char *c, unsigned short row) {
   t->putCenteredWord(c, row);
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::putNumber(unsigned int num, unsigned short row, unsigned short col) {
+KernelBuilder &KernelBuilder::putNumber(unsigned int num, unsigned short row, unsigned short col) {
   this->putNumber(num, calcIndex(row, col, COLUMNS), 10);
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::putNumber(unsigned int num, unsigned int index, unsigned char base) {
+KernelBuilder &KernelBuilder::putNumber(unsigned int num, unsigned int index, unsigned char base) {
   unsigned int i = index
       + ((base == 10) ? digitLength10(num) : digitLength(num, base));
   while (num > 0) {
@@ -50,25 +50,26 @@ KernelBuilder *KernelBuilder::putNumber(unsigned int num, unsigned int index, un
     num /= base;
     --i;
   }
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::drawRect(unsigned char row, unsigned char col, unsigned char width,
+KernelBuilder &KernelBuilder::drawRect(unsigned char row, unsigned char col, unsigned char width,
     unsigned char height) {
   t->drawRect(row, col, width, height);
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow) {
+KernelBuilder &KernelBuilder::drawCenteredRectAtRow(unsigned short rows, unsigned short cols, unsigned short atRow) {
   t->drawCenteredRectAtRow(rows, cols, atRow);
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::putChar(char c, unsigned short index) {
+KernelBuilder &KernelBuilder::putChar(char c, unsigned short index) {
   t->putChar(c, index);
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::putInt(unsigned short num) {
+KernelBuilder &KernelBuilder::putInt(unsigned short num) {
   unsigned short i = 0;
   unsigned short cpynum = num;
   while (cpynum > 0) {
@@ -81,9 +82,20 @@ KernelBuilder *KernelBuilder::putInt(unsigned short num) {
     t->putChar(cc + ((char) '0'), --i);
     num /= 10;
   }
-  return this;
+  return *this;
 }
 
-KernelBuilder *KernelBuilder::put(const char* line) {
+KernelBuilder &KernelBuilder::putln(const char* line) {
   t->printLine(line);
+}
+
+KernelBuilder &KernelBuilder::put(const char* words) {
+  t->print(words);
+}
+
+KernelBuilder &KernelBuilder::put(const char* line, const bool newLine) {
+  t->print(line);
+  if(newLine) {
+    t->lineFeed();
+  }
 }

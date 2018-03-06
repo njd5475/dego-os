@@ -8,8 +8,13 @@ size_t strlen(const char* str) {
 }
 void strcpy(char *dst, const char *src) {
 	size_t ret = 0;
-	while(src[ret] != 0) {
-		dst[ret++] = src[ret];
+	bool stop = false;
+	while(!stop) {
+		dst[ret] = src[ret];
+		if(dst[ret] == 0) {
+			stop = true;
+		}
+		++ret;
 	}
 }
 bool strcmp(const char *lval, const char *rval) {

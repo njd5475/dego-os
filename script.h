@@ -22,9 +22,9 @@ public:
 
   Token *add(char c);
   Token *next() {return _next;}
-  const char *value() {return _str;}
+  const char *tok() {return _str;}
   Type ttype() {return _type;}
-  void print(KernelBuilder *b);
+  void print(KernelBuilder &b);
 private:
   Type tok_type(char c);
 
@@ -36,17 +36,20 @@ private:
 
 class Node {
 public:
-  Node(Token *t);
+  Node(const char *name, Token *t);
+  Node(const char *name);
   Node();
   ~Node();
 
   bool hasToken() {return !token;}
   void addChild(Node *);
-  void print(KernelBuilder *);
+  void print(KernelBuilder &);
+  void print(int, KernelBuilder &);
 protected:
   Node(Token *, Node *);
 
 private:
+  const char *name;
   Node *parent;
   Node **children;
   size_t children_count;
@@ -55,7 +58,7 @@ private:
 
 class Parser {
 public:
-  Parser(KernelBuilder *b);
+  Parser(KernelBuilder &b);
   ~Parser();
 
   Node *parse(Token *head);
@@ -71,7 +74,7 @@ public:
   Token *unknownToken(Token *t);
 
 private:
-  KernelBuilder *_b;
+  KernelBuilder &_b;
 };
 
 #endif
