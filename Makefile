@@ -22,7 +22,7 @@ OBJ_FILES=$(addprefix ./, $(notdir $(CPP_FILES:.cpp=.o)))
 default: $(TARGET).iso
 
 play: $(TARGET).iso
-	qemu-system-i386 -cdrom $(TARGET).iso
+	qemu-system-x86_64 -cdrom $(TARGET).iso
 
 clean_compiler: clean
 	rm -rf compiler/gcc*
@@ -41,7 +41,7 @@ boot.o: boot.s compiler_built
 	$(AS) boot.s -o boot.o
 
 %.o: %.cpp
-	$(GPLUS) -ffreestanding -O2 -Wall -Wextra -c -o $@ $^
+	$(GPLUS) -nostdlib -ffreestanding -O2 -Wall -Wextra -c -o $@ $^
 
 %.o: %.wh
 	./compiler/bin/i686-elf/bin/objcopy --input binary --output elf32-i386 --binary-architecture i386 $^ $@

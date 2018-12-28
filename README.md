@@ -19,7 +19,7 @@ Build was working as of 2015-11-17 using the following versions of dependencies:
 
 * System gcc (Debian 4.9.2-10) 4.9.2
 * Cross compiler built using:
-	* gcc 5.2.9
+	* gcc 6.1.9
 		* gmp 4.3.2
 		* isl 0.14
 		* mpc 0.8.1
@@ -34,7 +34,7 @@ Building
 
 Install pre-requisite packages on a linux system.
 	
-		$ sudo apt-get install git build-essential qemu xorriso
+		$ sudo apt-get install git build-essential qemu xorriso mtools grub-pc-bin
 
 Clone the repo and from the commandline run
 

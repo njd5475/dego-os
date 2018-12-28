@@ -18,4 +18,8 @@ void operator delete(void *p);
 
 void operator delete[](void *p);
 
+void operator delete(void*, long unsigned int);
+
+void operator delete[](void*, long unsigned int);
+
 #endif /* NEW_H_ */
