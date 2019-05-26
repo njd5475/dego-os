@@ -4,13 +4,16 @@
 
 #include "context.h"
 
-class Action
-{
-public:
-  Action() {};
-  ~Action() {};
+class Action {
+  public:
+    Action() {};
+    ~Action() {};
 
-  void _do(Context *c) {}
+    void _do(Context *c) {}
+
+	private:
+    Action *next;
+
 };
 
 #endif

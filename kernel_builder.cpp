@@ -78,8 +78,11 @@ KernelBuilder &KernelBuilder::putInt(unsigned short num) {
   }
   while (num > 0) {
     unsigned short c = num % 10;
-    char cc = (char) c;
-    t->putChar(cc + ((char) '0'), --i);
+    char cc = (char)(c + ((unsigned short)'0'));
+    char single[2];
+    single[0] = cc;
+    single[1] = '\0';
+    t->print(single);
     num /= 10;
   }
   return *this;

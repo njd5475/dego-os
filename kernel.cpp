@@ -6,7 +6,6 @@
 #include "new.h"
 #include "function.h"
 #include "string_functions.h"
-#include "script.h"
 #include "kernel_builder.h"
 
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
@@ -21,20 +20,11 @@
 
 #include "context.h"
 #include "action.h"
+#include "parse_node.h"
+#include "token.h"
 #include "terminal.h"
-
-class Condition {
-
-public:
-  Condition() {}
-  ~Condition() {}
-  bool check() {return false;}
-};
-
-struct Event {
-  Condition preCondition;
-  Action action;
-};
+#include "parser.h"
+#include "program_builder.h"
 
 extern char _binary_program_wh_start;
 extern char _binary_program_wh_end;
@@ -62,6 +52,8 @@ void kernel_main() {
   while(*p) {
     Token *n = next->add(*p++);
     if(n != next) {
+      // next->print(b);
+      // b.putln(" ");
       ++token_count;
     }
     next = n;
@@ -74,15 +66,9 @@ void kernel_main() {
   }else{
     b.putln("Printing AST...");
     ast->print(b);
+    ProgramBuilder builder;
+    builder.build(ast);
   }
-
-  const char *toCp = "toCopy";
-  char *copy = new char[strlen(toCp)+1];
-  strcpy(copy, toCp);
-  copy[strlen(toCp)+1] = 'k';
-  b.put("Copied ");
-  b.put(copy);
-  b.put("", true);
 
   void *ptr = &endkernel;
 }
