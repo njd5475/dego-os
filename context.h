@@ -13,13 +13,4 @@ class Context {
 
 };
 
-class Program {
-  public:
-    Program();
-    ~Program();
-
-  private:
-    Condition **conditions;
-};
-
 #endif

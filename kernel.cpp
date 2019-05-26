@@ -20,14 +20,11 @@
 
 #include "context.h"
 #include "action.h"
-#include "parse_node.h"
-#include "token.h"
 #include "terminal.h"
-#include "parser.h"
 #include "program_builder.h"
 
-extern char _binary_program_wh_start;
-extern char _binary_program_wh_end;
+extern char _binary_kernel_program_wh_start;
+extern char _binary_kernel_program_wh_end;
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
@@ -44,7 +41,7 @@ void kernel_main() {
     b.putln("We are in protected mode");
   }
 
-  const char* p = &_binary_program_wh_start;
+  const char* p = &_binary_kernel_program_wh_start;
   Token *head = new Token(*p++);
   Token *next = head;
 
@@ -65,9 +62,12 @@ void kernel_main() {
     b.putln("Failed to parse kernel program");
   }else{
     b.putln("Printing AST...");
-    ast->print(b);
+    //ast->print(b);
     ProgramBuilder builder;
-    builder.build(ast);
+    Program *program = builder.build(ast);
+    Context c;
+    program->exec(&c);
+    b.put("Executing kernel program");
   }
 
   void *ptr = &endkernel;

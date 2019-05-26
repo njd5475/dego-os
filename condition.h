@@ -6,14 +6,16 @@ class Action;
 class Context;
 
 class Condition {
+  public:
+    Condition(Action *action);
+    ~Condition();
 
-public:
-  Condition();
-  virtual ~Condition();
+    bool check(Context *c);
 
-  virtual bool check(Context *c) = 0;
+    Action *getAction();
+    
   private:
-    Action *first;
+    Action *_first;
 };
 
 #endif
