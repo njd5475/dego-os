@@ -2,6 +2,7 @@
 #include "parse_node.h"
 #include "kernel_builder.h"
 #include "token.h"
+#include "node_visitor.h"
 
 Node::Node(const char* name, Token *t) : name(name), children_count(0), token(t), parent(NULL) {}
 Node::Node(const char* name) : name(name), children_count(0), token(NULL), parent(NULL) {}
@@ -29,6 +30,10 @@ void Node::addChild(Node *node) {
   ++children_count;
   delete []children;
   children = new_children;
+}
+
+const char* Node::getName() {
+  return this->name;
 }
 
 Node *Node::buildChild(const char *name) {
@@ -67,5 +72,12 @@ void Node::print(int spaces, KernelBuilder &b) {
 
   for(size_t i = 0; i < children_count; ++i) {
      children[i]->print(spaces+1, b);
+  }
+}
+
+void Node::visit(NodeVisitor *visitor) {
+  visitor->visit(this);
+  for(size_t i = 0; i < children_count; ++i) {
+    children[i]->visit(visitor);
   }
 }

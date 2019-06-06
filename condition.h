@@ -8,7 +8,7 @@ class Context;
 class Condition {
   public:
     Condition(Action *action);
-    ~Condition();
+    virtual ~Condition();
 
     bool check(Context *c);
 

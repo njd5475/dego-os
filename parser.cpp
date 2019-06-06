@@ -117,18 +117,20 @@ Token *Parser::nullToken(Node *current) {
 Token *Parser::conditions(Token *t, Node *n) {
   Node *node = new Node("conditions");
   Token *back = t;
-  t = consumeWhitespace(t);
-  t = identifier(t, node);
-  if(t) {
-    n->addChild(node);
-    return t;
-  }
-  
-  t = back; //rewind to try a different node
-  t = globalReference(t, node);
-  if(t) {
-    n->addChild(node);
-    return t;
+  while(!this->keyword("do", t, n)) {
+    t = consumeWhitespace(t);
+    t = identifier(t, node);
+    if(t) {
+      n->addChild(node);
+      return t;
+    }
+    
+    t = back; //rewind to try a different node
+    t = globalReference(t, node);
+    if(t) {
+      n->addChild(node);
+      return t;
+    }
   }
 
   return NULL;

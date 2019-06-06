@@ -1,5 +1,5 @@
 
-when os_starts do
+when event os_starts do
   print Hello from Whenz
 
 when @os_protectedMode do

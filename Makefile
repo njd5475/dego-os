@@ -11,7 +11,9 @@ INSTALL_PATH=./compiler
 PATH:=$(INSTALL_PATH)/bin/bin:$(PATH)
 AS=i686-elf-as
 GPLUS=i686-elf-g++
+GPLUS_OPTS= -nostdlib -fno-rtti -fno-exceptions -ffreestanding -O2 -Wall -Wextra
 GCC=i686-elf-gcc
+LD_OPTS= -nostdlib -fno-rtti -fno-exceptions -ffreestanding -O2
 TOOLS=$(AS) $(GPLUS) $(GCC)
 TARGET=dego
 CPP_FILES=$(wildcard *.cpp)
@@ -41,13 +43,13 @@ boot.o: boot.s compiler_built
 	$(AS) boot.s -o boot.o
 
 %.o: %.cpp
-	$(GPLUS) -nostdlib -ffreestanding -O2 -Wall -Wextra -c -o $@ $^
+	$(GPLUS) $(GPLUS_OPTS) -c -o $@ $^
 
 %.o: %.wh
 	./compiler/bin/i686-elf/bin/objcopy --input binary --output elf32-i386 --binary-architecture i386 $^ $@
 
 $(TARGET).bin: boot.o $(OBJ_FILES) $(WH_OBJ_FILES)
-	$(GCC) -T linker.ld -o $(TARGET).bin -fno-rtti -fno-exceptions -ffreestanding -O2 -nostdlib boot.o $(OBJ_FILES) $(WH_OBJ_FILES)
+	$(GCC) -T linker.ld -o $(TARGET).bin $(LD_OPTS) boot.o $(OBJ_FILES) $(WH_OBJ_FILES)
 
 isodir/boot/$(TARGET).bin: $(TARGET).bin
 	mkdir -p isodir/boot

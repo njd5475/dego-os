@@ -6,16 +6,22 @@
 #include "parser.h"
 #include "program.h"
 #include "parse_node.h"
+#include "node_visitor.h"
 
-class ProgramBuilder {
+class KernelBuilder;
+
+class ProgramBuilder: public NodeVisitor {
 
 public:
   ProgramBuilder();
-  ~ProgramBuilder();
+  virtual ~ProgramBuilder();
 
   Program *build(Node *ast);
+  virtual void visit(Node *n);
+
 private:
   Program *_program;
+  KernelBuilder *_terminal;
 };
 
 #endif

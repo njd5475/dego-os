@@ -3,6 +3,7 @@
 #endif
 #include <stddef.h>
 #include <stdint.h>
+
 #include "new.h"
 #include "function.h"
 #include "string_functions.h"
@@ -62,12 +63,12 @@ void kernel_main() {
     b.putln("Failed to parse kernel program");
   }else{
     b.putln("Printing AST...");
-    //ast->print(b);
-    ProgramBuilder builder;
-    Program *program = builder.build(ast);
-    Context c;
-    program->exec(&c);
-    b.put("Executing kernel program");
+    ast->print(b);
+    //ProgramBuilder builder;
+    //Program *program = builder.build(ast);
+    //Context c;
+    //program->exec(&c);
+    //b.put("Executing kernel program");
   }
 
   void *ptr = &endkernel;
