@@ -10,7 +10,7 @@ class Condition {
     Condition(Action *action);
     virtual ~Condition();
 
-    bool check(Context *c);
+    virtual bool check(Context *c);
 
     Action *getAction();
     

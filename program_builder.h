@@ -9,6 +9,7 @@
 #include "node_visitor.h"
 
 class KernelBuilder;
+class Action;
 
 class ProgramBuilder: public NodeVisitor {
 
@@ -22,6 +23,7 @@ public:
 private:
   Program *_program;
   KernelBuilder *_terminal;
+  Action *_lastAction;
 };
 
 #endif

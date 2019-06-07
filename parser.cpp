@@ -116,24 +116,31 @@ Token *Parser::nullToken(Node *current) {
 
 Token *Parser::conditions(Token *t, Node *n) {
   Node *node = new Node("conditions");
-  Token *back = t;
-  while(!this->keyword("do", t, n)) {
-    t = consumeWhitespace(t);
-    t = identifier(t, node);
-    if(t) {
-      n->addChild(node);
-      return t;
-    }
-    
-    t = back; //rewind to try a different node
-    t = globalReference(t, node);
-    if(t) {
-      n->addChild(node);
-      return t;
-    }
-  }
+  Token *back;
+  
+  t = consumeWhitespace(t);
+  do {
+    back = t;
 
-  return NULL;
+    t = identifier(t, n);
+    if(t) {
+      t = consumeWhitespace(t);
+      continue;
+    }
+
+    t = back; //rewind
+    
+    t = globalReference(t, n);
+    if(t) {
+      t = consumeWhitespace(t);
+      continue;
+    }
+
+    t = back;
+    return unexpectedToken("Expected indentifier or global reference ", t);
+  } while(!strcmp("do", t->tok()));
+
+  return t;
 }
 
 Token *Parser::actions(Token *t, Node *n) {

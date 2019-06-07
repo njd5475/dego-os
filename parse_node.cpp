@@ -52,6 +52,20 @@ void Node::print(KernelBuilder &b) {
   this->print(1, b);
 }
 
+Node* Node::getChild(int n) {
+  if(n < this->children_count && n >= 0) {
+    return this->children[n];
+  }
+  return NULL;
+}
+
+bool Node::isToken(const char *tokstr) {
+  if(this->hasToken()) {
+    return strcmp(tokstr, this->token->tok());
+  }
+  return false;
+}
+
 void Node::print(int spaces, KernelBuilder &b) {
   for(int i = 0; i < spaces; ++i) {
     b.put("-");

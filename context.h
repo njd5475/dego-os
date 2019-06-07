@@ -7,7 +7,7 @@ class Context {
 
   public:
     Context();
-    ~Context();
+    virtual ~Context();
 
   private:
 

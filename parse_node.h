@@ -18,6 +18,8 @@ public:
   const char *getName();
   Node *buildChild(const char *name);
   Node *buildChild(const char *name, Token *t);
+  Node *getChild(int n);
+  bool isToken(const char* tokstr);
   void print(KernelBuilder &);
   void print(int, KernelBuilder &);
   size_t numberOfChildren();
